@@ -1,0 +1,87 @@
+<script type="text/javascript">
+    RED.nodes.registerType('MH-Z19-CO2Sensor', {
+        category: 'Air quality sensors',
+        color: '#04b50f',
+        defaults: {
+            name: { value: "MH-Z19-CO2Sensor" },
+            serialport: { value: "/dev/serial0" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "font-awesome/fa-microchip",
+        label: function () {
+            return this.name || "MH-Z19-CO2Sensor";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="MH-Z19-CO2Sensor">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+     <div class="form-row">
+        <label for="node-input-serialport"><i class="fa fa-pencil"></i>Serialport</label>
+        <input type="text" id="node-input-serialport" placeholder="/dev/serial0">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="MH-Z19-CO2Sensor">
+    <p>This node reads the CO2 value of the MH-Z19 CO2 Sensor</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload
+            <span class="property-type">string</span>
+        </dt>
+        <dd> The command you want to send to MH-Z19 CO2 Sensor. </dd>
+        <dt class="optional">serialport<span class="property-type">string</span></dt>
+        <dd> The serialport MH-Z19 sensor is connected to. If set it takes precedence of configured serialport in node properties. Example /dev/serial0</dd>
+        <dt class="optional">CO2<span class="property-type">string</span></dt>
+        <dd> Use this value for span point calibration. Generally not recommended, see details.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <ol class="node-ports">
+        <li>Return value of command
+            <dl class="message-properties">
+                <dt>payload <span class="property-type">JSON</span></dt>
+                <dd>Returns the CO2 concentration in ppm, temperature and whether checksum of measurement is correct. The temperature is just a rough value. Usually 1-2 °C higher 
+                    than calibrated sensors report. If checksum is false consider something went wrong on data transfer.
+                </dd>
+            </dl>
+        </li>
+    </ol>
+
+    <h3>Details</h3>
+    <p><code>msg.payload</code> contains the commands you want to send to MH-Z19-CO2Sensor.</p>
+    <p>send <code>getCO2</code> to obtain current CO2 value.</p>
+    <p> Following commands are some kind of permanent. These values are stored internally even after removing power.</p>
+    <p>send <code>spanCalibration</code> together with <code>msg.CO2</code> containing the current CO2 value. <b>Not recommend using this command</b>. It is just included to 
+        have all commands implemented the sensor supports.
+    </p>
+    <p> send <code>setCO2To400</code> to calibrate the sensor to 400 ppm. According to manual sensor should be at least 20 minutes in this atmosphere.<br/> Please note: 
+        Even with fully opened window it can take hours until CO2 drops to 400 ppm. When you want to calibrate the sensor I recommend taking it outside, leaving there for 30 
+        minutes an then send this command.
+    </p>
+    <p> send <code>ABCoff</code> to disable automatic calibration. <b>Recommend</b>. According to latest datasheet automatic calibration is enabled by default. <br/>Automatic 
+        calibration sets every 24 hours the lowest measured CO2 concentration to 400 ppm. Even if you ventilate the room a lot it is very unlikely to really reach 400 ppm inside, see above.
+    </p>
+    <p> send <code>ABCon</code> to enable automatic calibration.</p>
+
+
+    <p>Some information on span point calibration: Manual states that you should first calibrate zero / 400 ppm and then span point calibrate in a CO2 concentration 
+        of 2000 ppm, at least 1000 ppm. This sensor uses some kind of two point calibration. So suppose you have calibrated your sensor to wrong zero point and it 
+        shows 500 ppm and you have a calibrated CO2 sensor showing for example 1500 ppm and then send 1500 ppm as span point, it won't work. 
+        In my tests sensor still showed 500 ppm. Reasonable readings were only returned after correct zero point calibration and then also correcting the span point.
+        So without a calibrated CO2 sensor you won't get your MH-Z19-CO2Sensor to measure CO2 concentration correctly.
+        <br/><b><u>So using span point calibration is strongly discouraged unless you have calibration atmospheres or another very accurate CO2 sensor.</b></u>
+    </p>
+
+    <h3>References</h3>
+    <ul>
+        <li><a href="https://www.winsen-sensor.com/d/files/infrared-gas-sensor/mh-z19b-co2-ver1_0.pdf">Datasheet current version/a></li>
+        <li><a href="https://www.winsen-sensor.com/d/files/PDF/Infrared%20Gas%20Sensor/NDIR%20CO2%20SENSOR/MH-Z19%20CO2%20Ver1.0.pdf">Datasheet older version</a></li>
+        <li><a href="https://github.com/JsBergbau/node-red-contrib-mh-z19-co2sensor">GitHub</a> - the nodes github repository</li>
+    </ul>
+
+</script>

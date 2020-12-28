@@ -1,0 +1,36 @@
+{
+  "name": "node-red-contrib-mh-z19-co2sensor",
+  "version": "1.0.0",
+  "description": "With this node you can read poll the MH-Z19 sensor",
+  "main": "mh-z19.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JsBergbau/node-red-contrib-mh-z19-co2sensor.git"
+  },
+  "keywords": [
+    "MH-Z19",
+    "node-red",
+    "mh-z19",
+    "co2sensor",
+    "air-quality",
+    "mhz19",
+    "mhz-19"
+  ],
+  "dependencies": {
+    "serialport": "^9.0.2"
+  },
+  "node-red": {
+    "nodes": {
+      "MH-Z19-CO2Sensor": "mh-z19.js"
+    }
+  },
+  "author": "JSBergbau",
+  "license": "GPL-3.0-only",
+  "bugs": {
+    "url": "https://github.com/JsBergbau/node-red-contrib-mh-z19-co2sensor/issues"
+  },
+  "homepage": "https://github.com/JsBergbau/node-red-contrib-mh-z19-co2sensor"
+}
