@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-mh-z19-co2sensor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "With this node you can read poll the MH-Z19 sensor",
   "main": "mh-z19.js",
   "scripts": {

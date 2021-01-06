@@ -54,7 +54,7 @@
 
     <h3>Details</h3>
     <p><code>msg.payload</code> contains the commands you want to send to MH-Z19-CO2Sensor.</p>
-    <p>send <code>getCO2</code> to obtain current CO2 value.</p>
+    <p>send <code>getCO2</code> to obtain current CO2 value. Internal measurement interval of MH-Z19 sensor is about 5 seconds. So polling more frequent than every 5 seconds is not recommended. </p>
     <p> Following commands are some kind of permanent. These values are stored internally even after removing power.</p>
     <p>send <code>spanCalibration</code> together with <code>msg.CO2</code> containing the current CO2 value. <b>Not recommend using this command</b>. It is just included to 
         have all commands implemented the sensor supports.
@@ -79,7 +79,7 @@
 
     <h3>References</h3>
     <ul>
-        <li><a href="https://www.winsen-sensor.com/d/files/infrared-gas-sensor/mh-z19b-co2-ver1_0.pdf">Datasheet current version/a></li>
+        <li><a href="https://www.winsen-sensor.com/d/files/infrared-gas-sensor/mh-z19b-co2-ver1_0.pdf">Datasheet current version</a></li>
         <li><a href="https://www.winsen-sensor.com/d/files/PDF/Infrared%20Gas%20Sensor/NDIR%20CO2%20SENSOR/MH-Z19%20CO2%20Ver1.0.pdf">Datasheet older version</a></li>
         <li><a href="https://github.com/JsBergbau/node-red-contrib-mh-z19-co2sensor">GitHub</a> - the nodes github repository</li>
     </ul>
