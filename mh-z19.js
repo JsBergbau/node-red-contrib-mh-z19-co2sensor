@@ -67,7 +67,8 @@ module.exports = function (RED) {
                 msg.payload = {};
                 msg.payload.CO2 = daten[2] * 256 + daten[3];
                 msg.payload.temperature = daten[4] - 40;
-                msg.payload.checksumCorrect = (getChecksum(daten) == daten[8]) ? true : false;
+				msg.payload.checksumCorrect = (getChecksum(daten) == daten[8]) ? true : false;
+				node.status({fill:"green",shape:"dot",text: msg.payload.CO2 + " ppm CO2"});
                 send(msg);
                 node.port.close();
                 if (done) {
@@ -77,8 +78,8 @@ module.exports = function (RED) {
 
             switch (msg.payload) {
                 case "getCO2":
-                    node.port.write(readCO2Command);
-                    break;
+					node.port.write(readCO2Command);
+					break;
                 case "setCO2To400":
                     node.port.write(setCO2To400Command);
                     break;
@@ -104,6 +105,7 @@ module.exports = function (RED) {
                     }
                     break;
                 default:
+					node.status({fill:"red",shape:"ring",text: "Invalid input"});
                     done("Invalid input. Please see Node's help");
             }
         });

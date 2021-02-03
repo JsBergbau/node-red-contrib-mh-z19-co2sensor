@@ -15,7 +15,7 @@ Connect TXD (PIN 8) to Rx of CO2 sensor.
 Connect RXD (PIN  10) to Tx of CO2 sensor.
 
 ## Usage
-Set `msg.payload` to `getCO2` to get current CO2 values or to `ABCOff` to disable error prone automatic calibration every 24 hours. More in the node’s help tab. 
+Set `msg.payload` to `getCO2` to get current CO2 values or to `ABCoff` to disable error prone automatic calibration every 24 hours. More in the node’s help tab. 
 
 ## License
 GPLv3
