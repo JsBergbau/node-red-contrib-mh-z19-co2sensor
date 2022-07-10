@@ -4,7 +4,8 @@
         color: '#04b50f',
         defaults: {
             name: { value: "MH-Z19-CO2Sensor" },
-            serialport: { value: "/dev/serial0" }
+            serialport: { value: "/dev/serial0" },
+            keepopen: { value: true}
         },
         inputs: 1,
         outputs: 1,
@@ -24,6 +25,10 @@
         <label for="node-input-serialport"><i class="fa fa-pencil"></i>Serialport</label>
         <input type="text" id="node-input-serialport" placeholder="/dev/serial0">
     </div>
+    <div class="form-row">
+     <label for="node-input-keepopen"><i class="fa fa-check"></i>Keep port open</label>
+     <input type="checkbox" id="node-input-keepopen"  />
+  </div>
 </script>
 
 <script type="text/html" data-help-name="MH-Z19-CO2Sensor">
@@ -53,6 +58,7 @@
     </ol>
 
     <h3>Details</h3>
+    <p>Use keep port open checkbox to exclusivly use serial port for this node. When unchecked, Serialport is openend on each input. Opening and closing the port each time may lead to error <code> Error Resource temporarily unavailable Cannot lock port</code>, so using Keep port open option defaults to enabled.</p>
     <p><code>msg.payload</code> contains the commands you want to send to MH-Z19-CO2Sensor.</p>
     <p>send <code>getCO2</code> to obtain current CO2 value. Internal measurement interval of MH-Z19 sensor is about 5 seconds. So polling more frequent than every 5 seconds is not recommended. </p>
     <p> Following commands are some kind of permanent. These values are stored internally even after removing power.</p>

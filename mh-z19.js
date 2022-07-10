@@ -31,9 +31,18 @@ module.exports = function (RED) {
         const ABCoffCommand = Buffer.from([0xFF, 0x01, 0x79, 0x00, 0x00, 0x00, 0x00, 0x00, 0x86]);
         const ABConCommand = Buffer.from([0xFF, 0x01, 0x79, 0xA0, 0x00, 0x00, 0x00, 0x00, 0xE6]);
 
+		nodeContext = this.context();
 
+		keepopen = config.keepopen;
 
-        //getChecksum(Buffer.from([255, 1, 134, 0, 0, 0, 0, 0, 121]);
+		if (keepopen)
+		{
+			serialport = config.serialport;
+			persistSerialport = new SerialPort(serialport, { baudRate: 9600 })
+			nodeContext.set("persistSerialport", persistSerialport)
+		}
+
+		//getChecksum(Buffer.from([255, 1, 134, 0, 0, 0, 0, 0, 121]);
         node.on('input', function (msg, send, done) {
             // For maximum backwards compatibility, check that send exists.
             // If this node is installed in Node-RED 0.x, it will need to
@@ -42,27 +51,47 @@ module.exports = function (RED) {
 
             serialport = msg.serialport || config.serialport;
 
-            node.port = new SerialPort(serialport, { baudRate: 9600 })
-            node.port.on('error', function (err) {
-                if (String(err) != "Error: Port is not open") {
-                    done(err.message)
-                }
-            })
+			keepopen = config.keepopen;
 
+			//console.log("keep open: " + keepopen)
+
+			if(keepopen)
+			{
+				node.port = nodeContext.get("persistSerialport");
+				node.port.flush();
+				node.port.resume();				
+			}
+			else
+			{
+				node.port = new SerialPort(serialport, { baudRate: 9600 })
+			}
+            
             function showPortOpen() {
                 //console.log('port open. Data rate: ' + node.port.baudRate);
-                setTimeout(() => {
-                    node.port.close();
-                }, 125);
+                // setTimeout(() => {
+                //     node.port.close();
+                // }, 125);
             }
-            node.port.on('open', showPortOpen);
 
             function showPortClose() {
                 //console.log('port closed.');
             }
-            node.port.on('close', showPortClose);
-            const parser = node.port.pipe(new ByteLength({ length: 9 }));
-            parser.on('data', function (daten) {
+
+
+			serialportInitialized = nodeContext.get("serialportInitialized")
+
+			if(!serialportInitialized)
+			{
+				node.port.on('error', function (err) {
+					if (String(err) != "Error: Port is not open") {
+						done(err.message)
+					}
+				})
+				node.port.on('open', showPortOpen);
+				nodeContext.set("serialportInitialized",true)
+				node.port.on('close', showPortClose);
+				const parser = node.port.pipe(new ByteLength({ length: 9 }));
+            	parser.on('data', function (daten) {
                 //console.log(daten);
                 msg.payload = {};
                 msg.payload.CO2 = daten[2] * 256 + daten[3];
@@ -70,11 +99,23 @@ module.exports = function (RED) {
 				msg.payload.checksumCorrect = (getChecksum(daten) == daten[8]) ? true : false;
 				node.status({fill:"green",shape:"dot",text: msg.payload.CO2 + " ppm CO2"});
                 send(msg);
-                node.port.close();
+				if(!keepopen)
+				{
+					node.port.close();
+					nodeContext.set("serialportInitialized",false)
+				}
+				else
+				{
+					node.port.flush();
+					node.port.pause();
+				}
+
                 if (done) {
                     done();
                 }
             });
+			}
+
 
             switch (msg.payload) {
                 case "getCO2":
@@ -112,8 +153,15 @@ module.exports = function (RED) {
 
         node.on('close', function () {
             //node.warn("closing");
-            //console.log("beende node");
+            //console.log("closing node");
             //node.port.close();
+			if (keepopen)
+			{
+				nodeContext = this.context();
+				serialport = nodeContext.get("persistSerialport");
+				serialport.close();
+				nodeContext.set("serialportInitialized",false)
+			}
         });
     }
     RED.nodes.registerType("MH-Z19-CO2Sensor", MHZ19CO2Sensor);
